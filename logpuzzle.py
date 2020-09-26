@@ -13,12 +13,20 @@ Here's what a puzzle URL looks like (spread out onto multiple lines):
 HTTP/1.0" 302 528 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US;
 rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
 """
+__author__ = """
+stephguirand
+Help from demo, lessons and activities, youtube videos in canvas and
+own search on youtube,
+stack overflow, Tutors, Facilitators and talking about assignment
+in study group.
+"""
 
 import os
 import re
 import sys
 import urllib.request
 import argparse
+from collections import defaultdict
 
 
 def read_urls(filename):
@@ -26,8 +34,26 @@ def read_urls(filename):
     extracting the hostname from the filename itself, sorting
     alphabetically in increasing order, and screening out duplicates.
     """
-    # +++your code here+++
-    pass
+    temp = filename.split("_")
+    domain = "http://" + temp[1]
+    temp_urls = defaultdict(list)
+    # Store the ulrs into a list to screen out the duplicates
+    puzzle_urls = []
+    with open(filename, "r") as f:
+        for line in f:
+            # Find the path which is after the GET and surrounded by spaces
+            paths_found = re.search(r'(\S*\Spuzzle\S*)', line)
+    # Above uses \S "upper case S" which is any non-space char
+            if paths_found:
+                temp_urls[line[paths_found.start():paths_found.end()]]
+    for key in temp_urls.keys():
+        puzzle_urls.append(domain + key)
+        # Add to list if it is a special puzzle url..
+        # combine this puzzle...
+    if temp[0] == "animal":
+        return sorted(puzzle_urls)
+    else:
+        return sorted(puzzle_urls, key=lambda x: x.split("-")[4])
 
 
 def download_images(img_urls, dest_dir):
@@ -38,8 +64,24 @@ def download_images(img_urls, dest_dir):
     to show each local image file.
     Creates the directory if necessary.
     """
+
+    images_list = []
+    # if not os.path.isdir(dest_dir):
+    os.makedirs(dest_dir)
+    for i, each in enumerate(img_urls):
+        print(f"File #{i} of {len(img_urls)} Retrieving...")
+        name_of_file = dest_dir + "/img" + str(i) + each[-4:]
+        urllib.request.urlretrieve(each, name_of_file)
+        images_list.append("img" + str(i) + each[-4:])
+    with open(dest_dir + "/index.html", 'w') as f:
+        f.write("<html>")
+        f.write("<body>")
+        for image in images_list:
+            f.write(f"<img src={image}>")
+        f.write("</body>")
+        f.write("</html>")
+
     # +++your code here+++
-    pass
 
 
 def create_parser():
